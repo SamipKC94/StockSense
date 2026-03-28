@@ -7,8 +7,8 @@
  * @returns {Object|null} Prediction object containing predictedExhaustionDate and averageDailyUsage
  */
 export const calculateExhaustionDate = (usageHistory, currentStock) => {
-  if (!usageHistory || usageHistory.length < 2) {
-    // Need at least 2 data points for a meaningful regression
+  if (!usageHistory || usageHistory.length === 0) {
+    // Need at least 1 data point to show any predictions
     return null;
   }
 
@@ -41,7 +41,19 @@ export const calculateExhaustionDate = (usageHistory, currentStock) => {
   const denominator = (n * sumXX) - (sumX * sumX);
   
   if (denominator === 0) {
-    return null; // All points have the same x (e.g. happened on the exact same day)
+    // Fallback: If only 1 entry exists or multiple entries happened on the exact same day,
+    // we take the total usage and assume a very simple 1-day running slope to instantly fuel the UI graphs
+    const totalUsage = usageHistory.reduce((sum, entry) => sum + entry.quantity, 0);
+    if (totalUsage <= 0) return null;
+    
+    const mFallback = totalUsage;
+    const predictionDateFallback = new Date();
+    predictionDateFallback.setTime(predictionDateFallback.getTime() + ((currentStock / mFallback) * msInDay));
+    
+    return {
+      predictedExhaustionDate: predictionDateFallback,
+      averageDailyUsage: mFallback
+    };
   }
 
   // m represents the average usage per day (slope)

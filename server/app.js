@@ -4,7 +4,7 @@ import cors from 'cors';
 import morgan from 'morgan';
 import helmet from 'helmet';
 import http from 'http';
-import { connectDB } from './config/db.js';
+import connectDB from './config/db.js';
 import { connectRedis } from './config/redis.js';
 import { initSocket } from './socket.js';
 
