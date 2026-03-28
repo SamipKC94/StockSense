@@ -1,79 +1,74 @@
 # StockSense AI — Intelligent Inventory Management
 
-**StockSense AI** is a Master's level MERN-stack application leveraging Custom Linear Regression and Real-Time WebSockets for intelligent inventory administration and predictive exhaustion analytics.
+StockSense AI is a full-stack MERN application that combines real-time inventory tracking with **Machine Learning-driven demand forecasting**.
 
-## Tech Stack
-- **Frontend**: React (Vite), TailwindCSS, Axios, Recharts, Socket.io-client.
-- **Backend (ES Modules)**: Node.js, Express, MongoDB (Mongoose), JWT Auth.
-- **AI/ML Logic**: Custom Linear Regression (`forecastService.js`).
-- **DevOps**: Docker, Docker Compose, GitHub Actions (CI/CD).
-- **Caching**: Redis.
+![Dashboard Status](https://img.shields.io/badge/Status-Beta-orange)
+![Tech Stack](https://img.shields.io/badge/Stack-MERN-blue)
+![Real-time](https://img.shields.io/badge/Real--time-Socket.io-green)
 
-## Architecture
+---
 
-```mermaid
-graph TD
-    Client["React Frontend (Vite)"]
-    API["Node/Express Backend (ES Modules)"]
-    DB[("MongoDB (Mongoose)")]
-    Cache[("Redis Cache")]
-    Sockets["Socket.io WebSocket Server"]
-    ML["Custom Linear Regression Service"]
+## ⚡ Key Features
 
-    Client -- HTTP Requests (Axios) --> API
-    Client -- Real-time connections --> Sockets
-    Sockets -.-> API
-    
-    API -- Reads/Writes Data --> DB
-    API -- In-Memory GET /products --> Cache
-    API -- Processes Usage History --> ML
-    ML -- Returns Predicted Exhaustion Date --> API
-```
+*   **📈 AI Demand Forecasting**: Custom Linear Regression algorithm that predicts the **exact date** your stock will run out based on historical usage velocity.
+*   **🔄 Real-time Sync**: Uses Socket.io to synchronize inventory updates across all connected dashboards instantly.
+*   **📊 Dynamic Visualization**: High-performance charts (Recharts) showing stock trajectory and predictive trend lines.
+*   **📜 Activity Logging**: Complete historical log of every stock deduction with optional batch notes.
+*   **🔐 Secure Auth**: JWT-based authentication with protected API routes and modern glassmorphic login UI.
 
-## Features
-- **JWT Authentication**: User login and protective routes logic.
-- **Product Management (CRUD + Advanced)**: Allows creating stock records spanning SKU logic. Maintains detailed arrays denoting exact temporal increments of `usageHistory`.
-- **Mandatory AI Engine**: Integrates algorithm to extract OLS linear estimates mapping out explicit exhaustion bounds, calculating dynamic "Predicted Exhaustion Date".
-- **Real-Time Data Distribution**: Stock updates or CRUD commands are immediately broadcast via binary payloads via `inventoryUpdate` using Socket.io protocols minimizing client resync issues. 
-- **Redis Content Delivery**: Accelerated reads through a custom caching middleware on the `GET /api/products` route drastically reducing MongoDB queries.
+---
 
-## Development Setup
+## 🛠 Setup & Installation
 
 ### 1. Prerequisites
-- [Node.js](https://nodejs.org/) (v18+)
-- [Docker & Docker Compose](https://www.docker.com/)
+- **Node.js** (v18+)
+- **MongoDB** (Atlas or Local)
+- **Redis** (Optional, for caching layer)
 
-### 2. Running Locally with Docker
-Create an `.env` file in `./server` ensuring `MONGO_URI` maps to `mongodb://mongo:27017/stocksense` and `REDIS_HOST=redis`.
+### 2. Environment Configuration
+Create a `.env` in the `server/` directory:
 ```bash
-docker-compose up --build
+PORT=5000
+NODE_ENV=development
+MONGO_URI=your_mongodb_uri
+JWT_SECRET=your_secret_key
+REDIS_URL=redis://localhost:6379
+CLIENT_URL=http://localhost:3000
 ```
-The Frontend will be exposed on port `80`, and the Node backend on `5000`.
 
-### 3. Local Startup without Docker
-Ensure MongoDB and Redis are running locally. 
+### 3. Installation
 ```bash
-# Terminal 1 - Backend
+# Install server dependencies
+cd server && npm install
+
+# Install client dependencies
+cd ../client && npm install
+```
+
+### 4. Data Seeding (Optional)
+To see the AI forecasting in action immediately with 60 days of mock history:
+```bash
 cd server
-npm install
-npm test # To Verify custom Linear Regression model
+node seed.js
+```
+
+### 5. Run the Application
+```bash
+# Start backend (from /server)
 npm start
 
-# Terminal 2 - Frontend
-cd client
-npm install
+# Start frontend (from /client)
 npm run dev
 ```
 
-## Version Control & Commit Strategy
-This repository relies tightly on the **Conventional Commits** standard utilizing a `main` and `dev` branch architecture strategy. 
+---
 
-Please abide by the following prefixes for robust PR generation syntax:
-- `feat:` for adding structural or new logic features.
-- `fix:` for fixing syntax, routing, or database glitches.
-- `perf:` for implementations dealing broadly with Redis caching speedups or refactoring Linear Regression execution times.
+## 🧠 The AI Model
+The forecasting engine uses **Ordinary Least Squares (OLS) Linear Regression**. It maps your cumulative usage over time as a function of days elapsed. The slope of this regression line dictates your **Usage Velocity**, which is then applied to your current stock level to project the `predictedExhaustionDate`.
 
-**Example**: `feat: implement realtime stock update websockets on Dashboard.jsx`
+---
 
-## Author
-Developed as a comprehensive Master's level architecture proving robust full-stack deployment skills coupled natively with fundamental data science processing.
+## 🤝 Contributing
+1. Clone the repo: `https://github.com/SamipKC94/StockSense.git`
+2. Create a branch: `git checkout -b feat/your-feature`
+3. Commit & Push!
