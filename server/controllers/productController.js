@@ -85,7 +85,7 @@ export const updateProduct = async (req, res) => {
         if (req.body.currentStock < product.currentStock) {
           const used = product.currentStock - req.body.currentStock;
           product.usageHistory.push({
-            date: new Date(),
+            date: req.body.usageDate ? new Date(req.body.usageDate) : new Date(),
             quantity: used,
             note: req.body.usageNote || 'Manual stock update',
           });
