@@ -1,0 +1,69 @@
+name: StockSense AI CI/CD Pipeline
+
+on:
+  push:
+    branches: [ "main", "dev" ]
+  pull_request:
+    branches: [ "main", "dev" ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    services:
+      mongodb:
+        image: mongo:6-jammy
+        ports:
+          - 27017:27017
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+
+    strategy:
+      matrix:
+        node-version: [18.x]
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+        cache-dependency-path: './server/package-lock.json'
+
+    # Backend
+    - name: Install Server Dependencies
+      run: npm ci
+      working-directory: ./server
+
+    - name: Run Server Tests
+      run: npm test
+      working-directory: ./server
+      env:
+        MONGO_URI: mongodb://localhost:27017/stocksense_test
+        REDIS_HOST: localhost
+        REDIS_PORT: 6379
+        JWT_SECRET: test_secret_key
+
+    # Frontend
+    - name: Install Client Dependencies
+      run: npm install
+      working-directory: ./client
+
+    - name: Build Client
+      run: npm run build
+      working-directory: ./client
+
+  docker-build:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Build Docker Compose
+      run: docker-compose build
