@@ -17,8 +17,13 @@ const app = express();
 
 // Middleware
 app.use(express.json());
-app.use(cors());
-app.use(helmet());
+app.use(cors({
+  origin: process.env.CLIENT_URL || 'http://localhost:3000',
+  credentials: true
+}));
+app.use(helmet({
+  contentSecurityPolicy: false, // Disable CSP for easier development with sockets
+}));
 
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
